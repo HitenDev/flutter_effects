@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_effect_text/effect/line_border.dart';
+import 'package:flutter_effect_text/effect/diff_scale_text.dart';
+import 'package:flutter_effect_text/effect/line_border_text.dart';
 import 'package:flutter_effect_text/effect/rainbow_text.dart';
 
 void main() => runApp(MyApp());
@@ -118,6 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 autoAnim: true),
+            DiffScaleText()
           ],
         ),
       ),
