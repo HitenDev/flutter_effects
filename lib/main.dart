@@ -114,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       Color(0xFF2239FF),
                       Color(0xFF5400F7),
                     ],
-                    text: '$_counter' + "温志豪大帅吊生活幸福",
+                    text: '$_counter' + "小海豚生活幸福快乐",
                     // style: Theme.of(context).textTheme.display1,
                   ),
                 ),

@@ -8,18 +8,48 @@ class DiffScaleText extends StatefulWidget {
   _DiffScaleTextState createState() => _DiffScaleTextState();
 }
 
-class _DiffScaleTextState extends State<DiffScaleText> {
+class _DiffScaleTextState extends State<DiffScaleText>
+    with TickerProviderStateMixin<DiffScaleText> {
+  AnimationController _animationController;
+
+  String text;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 800));
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _animationController.value = 0;
+        _animationController.forward();
+      }
+    });
+    _animationController.forward();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (text == "西出阳关无故人") {
+      text = "太阳打西边出来了";
+    } else if (text == null) {
+      text = "西出阳关无故人";
+    }
     return Container(
       color: Colors.brown,
-      child: RepaintBoundary(
-          child: CustomPaint(
-        size: Size(200, 60),
-        foregroundPainter: _DiffText(
-            text: Random().nextInt(2) == 1 ? "西出阳关无故人" : "太阳打西边出来了",
-            textStyle: TextStyle(fontSize: 20, color: Color(0xff000000))),
-      )),
+      child: AnimatedBuilder(
+        animation: _animationController,
+        builder: (BuildContext context, Widget child) {
+          return RepaintBoundary(
+              child: CustomPaint(
+            size: Size(200, 60),
+            foregroundPainter: _DiffText(
+                text: text,
+                textStyle: TextStyle(fontSize: 26, color: Color(0xff000000)),
+                progress: _animationController.value),
+          ));
+        },
+      ),
     );
   }
 }
@@ -32,7 +62,7 @@ class _DiffText extends CustomPainter {
   List<_TextLayoutInfo> _textLayoutInfo = [];
   List<_TextLayoutInfo> _oldTextLayoutInfo = [];
 
-  _DiffText({this.text, this.textStyle, this.progress = 0.4})
+  _DiffText({this.text, this.textStyle, this.progress = 0})
       : assert(text != null),
         assert(textStyle != null);
 
@@ -48,21 +78,14 @@ class _DiffText extends CustomPainter {
             (textStyle.color.alpha * progress).floor());
         var textPainter = TextPainter(text: TextSpan(text: _textLayoutInfo.text,
             style: textStyle.merge(TextStyle(
-                fontSize: textStyle.fontSize * progress,
                 color: null,
-                foreground: textPaint))),
+                foreground: textPaint,textBaseline:TextBaseline.ideographic))),
             textDirection: TextDirection.ltr);
         textPainter.textAlign = TextAlign.center;
+        textPainter.textScaleFactor = progress;
+        textPainter.textDirection = TextDirection.ltr;
         textPainter.layout(minWidth: _textLayoutInfo.width);
-        textPainter.paint(canvas, Offset(_textLayoutInfo.offsetX, (size.height -
-            textPainter.computeDistanceToActualBaseline(
-                TextBaseline.ideographic)) / 2));
-        var paint = Paint();
-        paint.color = Colors.white12;
-        canvas.drawRect(Rect.fromLTWH(_textLayoutInfo.offsetX, (size.height -
-            textPainter.computeDistanceToActualBaseline(
-                TextBaseline.ideographic)) / 2, textPainter.width,
-            textPainter.height), paint);
+        textPainter.paint(canvas, Offset(_textLayoutInfo.offsetX, (size.height-textPainter.computeDistanceToActualBaseline(TextBaseline.ideographic))/2));
       }
     }
     if (_oldTextLayoutInfo != null && _oldTextLayoutInfo.length > 0) {
@@ -107,6 +130,7 @@ class _DiffText extends CustomPainter {
       textLayoutInfo.offsetX = offset;
       textLayoutInfo.width = textPainter.width;
       textLayoutInfo.height = textPainter.height;
+      textLayoutInfo.baseline = textPainter.computeDistanceToActualBaseline(TextBaseline.ideographic);
       offset += textPainter.width;
       list.add(textLayoutInfo);
     }
@@ -136,6 +160,7 @@ class _DiffText extends CustomPainter {
 class _TextLayoutInfo {
   String text;
   double offsetX;
+  double baseline;
   double width;
   double height;
   double fromX = 0;
