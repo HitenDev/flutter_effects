@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_effect_text/easy_callback.dart';
 
 class RainbowText extends StatefulWidget {
   final List<Color> colors;
@@ -90,10 +91,9 @@ class _RainbowTextState extends State<RainbowText>
   }
 }
 
-typedef _SizeCallBack = void Function(Size size);
 
 class _SizeGetPainter extends CustomPainter {
-  final _SizeCallBack sizeCallBack;
+  final EasyCallback<Size, void> sizeCallBack;
 
   final dynamic tag;
 

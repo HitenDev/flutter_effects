@@ -32,7 +32,7 @@ class _DiffText extends CustomPainter {
   List<_TextLayoutInfo> _textLayoutInfo = [];
   List<_TextLayoutInfo> _oldTextLayoutInfo = [];
 
-  _DiffText({this.text, this.textStyle, this.progress = 0})
+  _DiffText({this.text, this.textStyle, this.progress = 0.4})
       : assert(text != null),
         assert(textStyle != null);
 
@@ -43,12 +43,32 @@ class _DiffText extends CustomPainter {
     }
     for (_TextLayoutInfo _textLayoutInfo in _textLayoutInfo) {
       if (!_textLayoutInfo.needMove) {
-        _textLayoutInfo.textPainter
-            .paint(canvas, Offset(_textLayoutInfo.offsetX, 0));
+        var textPaint = Paint();
+        textPaint.color = textStyle.color.withAlpha(
+            (textStyle.color.alpha * progress).floor());
+        var textPainter = TextPainter(text: TextSpan(text: _textLayoutInfo.text,
+            style: textStyle.merge(TextStyle(
+                fontSize: textStyle.fontSize * progress,
+                color: null,
+                foreground: textPaint))),
+            textDirection: TextDirection.ltr);
+        textPainter.textAlign = TextAlign.center;
+        textPainter.layout(minWidth: _textLayoutInfo.width);
+        textPainter.paint(canvas, Offset(_textLayoutInfo.offsetX, (size.height -
+            textPainter.computeDistanceToActualBaseline(
+                TextBaseline.ideographic)) / 2));
+        var paint = Paint();
+        paint.color = Colors.white12;
+        canvas.drawRect(Rect.fromLTWH(_textLayoutInfo.offsetX, (size.height -
+            textPainter.computeDistanceToActualBaseline(
+                TextBaseline.ideographic)) / 2, textPainter.width,
+            textPainter.height), paint);
       }
     }
     if (_oldTextLayoutInfo != null && _oldTextLayoutInfo.length > 0) {
-      for (_TextLayoutInfo _oldTextLayoutInfo in _oldTextLayoutInfo) {}
+      for (_TextLayoutInfo _oldTextLayoutInfo in _oldTextLayoutInfo) {
+
+      }
     }
   }
 
@@ -83,9 +103,10 @@ class _DiffText extends CustomPainter {
           textDirection: TextDirection.ltr);
       textPainter.layout();
       var textLayoutInfo = _TextLayoutInfo();
-      textLayoutInfo.textPainter = textPainter;
-      textLayoutInfo.textChar = charAt;
+      textLayoutInfo.text = String.fromCharCode(charAt);
       textLayoutInfo.offsetX = offset;
+      textLayoutInfo.width = textPainter.width;
+      textLayoutInfo.height = textPainter.height;
       offset += textPainter.width;
       list.add(textLayoutInfo);
     }
@@ -101,7 +122,7 @@ class _DiffText extends CustomPainter {
 
     for (_TextLayoutInfo oldText in _oldTextLayoutInfo) {
       for (_TextLayoutInfo text in _textLayoutInfo) {
-        if (!text.needMove && text.textChar == oldText.textChar) {
+        if (!text.needMove && text.text == oldText.text) {
           text.fromX = oldText.offsetX;
           oldText.toX = text.offsetX;
           text.needMove = true;
@@ -113,9 +134,10 @@ class _DiffText extends CustomPainter {
 }
 
 class _TextLayoutInfo {
-  int textChar;
+  String text;
   double offsetX;
-  TextPainter textPainter;
+  double width;
+  double height;
   double fromX = 0;
   double toX = 0;
   bool needMove = false;
