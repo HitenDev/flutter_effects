@@ -5,8 +5,9 @@ import 'package:flutter_effect_text/easy_callback.dart';
 class RainbowText extends StatefulWidget {
   final List<Color> colors;
   final String text;
+  final bool loop;
 
-  const RainbowText({Key key, this.colors, this.text})
+  const RainbowText({Key key, this.colors, this.text, this.loop = false})
       : assert(colors != null),
         super(key: key);
 
@@ -25,13 +26,17 @@ class _RainbowTextState extends State<RainbowText>
     super.initState();
     _animationController = AnimationController(
         duration: Duration(milliseconds: 1000), vsync: this);
-    _animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _animationController.value = 0;
-        _animationController.forward();
-      }
-    });
-    _animationController.forward();
+    if (widget.loop) {
+      _animationController.forward();
+      _animationController.addStatusListener((status) {
+        if (widget.loop) {
+          if (status == AnimationStatus.completed) {
+            _animationController.value = 0;
+            _animationController.forward();
+          }
+        }
+      });
+    }
   }
 
   void calculateTextWidth() {
@@ -62,6 +67,10 @@ class _RainbowTextState extends State<RainbowText>
 
   @override
   Widget build(BuildContext context) {
+    if (!_animationController.isAnimating) {
+      _animationController.value = 0;
+      _animationController.forward();
+    }
     return AnimatedBuilder(
       animation: _animationController,
       builder: (BuildContext context, Widget child) {
@@ -69,12 +78,12 @@ class _RainbowTextState extends State<RainbowText>
         TextStyle textStyle = TextStyle(fontSize: 20);
         if (widget.colors.length > 0 && width > 0) {
           Shader shader = LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: widget.colors,
-                  tileMode: TileMode.repeated)
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: widget.colors,
+              tileMode: TileMode.repeated)
               .createShader(Rect.fromLTWH(
-                  _animationController.value * width, 0, width, 0));
+              _animationController.value * width, 0, width, 0));
           var foreground = Paint();
           foreground.shader = shader;
           textStyle = textStyle.merge(TextStyle(foreground: foreground));
@@ -90,7 +99,6 @@ class _RainbowTextState extends State<RainbowText>
     );
   }
 }
-
 
 class _SizeGetPainter extends CustomPainter {
   final EasyCallback<Size, void> sizeCallBack;

@@ -45,8 +45,8 @@ class _LineBorderTextState extends State<LineBorderText>
     super.didUpdateWidget(oldWidget);
     dynamic oldTag = oldWidget.tag;
     dynamic tag = widget.tag;
-    bool equls = tag == oldTag;
-    if (!equls && widget.autoAnim && !_animationController.isAnimating) {
+    bool equals = tag == oldTag;
+    if (!equals && widget.autoAnim && !_animationController.isAnimating) {
       _animationController.forward();
     }
   }
