@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:text_effect/flutter_text_effect.dart';
+import 'package:flutter_effects/flutter_text_effect.dart';
 
 void main() => runApp(MyApp());
 
@@ -8,11 +8,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Effect Text Demo',
+      title: 'Effect Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Effect Text'),
+      home: MyHomePage(title: 'Flutter Effects Sample'),
     );
   }
 }

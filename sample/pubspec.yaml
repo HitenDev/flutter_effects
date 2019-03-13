@@ -27,7 +27,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  text_effect:
+  flutter_effects:
     path: ../
 
 

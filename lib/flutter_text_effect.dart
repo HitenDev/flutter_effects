@@ -1,5 +1,5 @@
-library text_effect;
+library flutter_effects;
 
-export 'effect/diff_scale_text.dart';
-export 'effect/line_border_text.dart';
-export 'effect/rainbow_text.dart';
+export 'package:flutter_effects/src/text/diff_scale_text.dart';
+export 'package:flutter_effects/src/text/line_border_text.dart';
+export 'package:flutter_effects/src/text/rainbow_text.dart';
