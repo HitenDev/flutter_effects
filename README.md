@@ -1,15 +1,13 @@
-# flutter_effect_text
+# flutter text effect
 
-A new Flutter project.
+A new Flutter package.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
+This project is a starting point for a Dart
+[package](https://flutter.io/developing-packages/),
+a library module containing code that can be shared easily across
+multiple Flutter or Dart projects.
 
 For help getting started with Flutter, view our 
 [online documentation](https://flutter.io/docs), which offers tutorials, 

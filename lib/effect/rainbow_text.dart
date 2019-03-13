@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_effect_text/easy_callback.dart';
 
+
+typedef EasyCallback<P, R> = R Function(P param);
 class RainbowText extends StatefulWidget {
   final List<Color> colors;
   final String text;

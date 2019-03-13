@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_effect_text/effect/diff_scale_text.dart';
-import 'package:flutter_effect_text/effect/line_border_text.dart';
-import 'package:flutter_effect_text/effect/rainbow_text.dart';
+import 'package:text_effect/flutter_text_effect.dart';
 
 void main() => runApp(MyApp());
 
