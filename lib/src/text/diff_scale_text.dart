@@ -39,6 +39,12 @@ class _DiffScaleTextState extends State<DiffScaleText>
     }
   }
 
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {

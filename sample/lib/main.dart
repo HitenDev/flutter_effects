@@ -1,3 +1,4 @@
+import 'package:anvil_effect/anvil_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_effects/flutter_text_effect.dart';
 
@@ -62,37 +63,50 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Container(
-        margin: EdgeInsets.all(8),
-        child: Column(
-          children: <Widget>[
-            createItem(RainbowText(colors: [
-              Color(0xFFFF2B22),
-              Color(0xFFFF7F22),
-              Color(0xFFEDFF22),
-              Color(0xFF22FF22),
-              Color(0xFF22F4FF),
-              Color(0xFF5400F7),
-            ], text: "Welcome to BBT", loop: true)),
-            Divider(),
-            LineBorderText(
-                child: createItem(Text(
-                  "Border Effect",
-                  style: TextStyle(fontSize: 20),
-                )),
-                autoAnim: true),
-            Divider(),
-            createItem(
-                DiffScaleText(
-                    text: sentences[diffScaleNext % sentences.length]),
-                bgColor: Colors.black, onTap: () {
-              setState(() {
-                diffScaleNext++;
-              });
-            })
-          ],
-        ),
-      ),
+      body: SingleChildScrollView(
+          child: Container(
+            margin: EdgeInsets.all(8),
+            child: Column(
+              children: <Widget>[
+                createItem(RainbowText(colors: [
+                  Color(0xFFFF2B22),
+                  Color(0xFFFF7F22),
+                  Color(0xFFEDFF22),
+                  Color(0xFF22FF22),
+                  Color(0xFF22F4FF),
+                  Color(0xFF5400F7),
+                ], text: "Welcome to BBT", loop: true)),
+                Divider(),
+                LineBorderText(
+                    child: createItem(Text(
+                      "Border Effect",
+                      style: TextStyle(fontSize: 20),
+                    )),
+                    autoAnim: true),
+                Divider(),
+                createItem(
+                    DiffScaleText(
+                        text: sentences[diffScaleNext % sentences.length]),
+                    bgColor: Colors.black, onTap: () {
+                  setState(() {
+                    diffScaleNext++;
+                  });
+                }),
+                Divider(),
+                createItem(AnvilEffectWidget(), bgColor: Colors.black),
+                Divider(),
+                createItem(ExplosionWidget(
+                    child: Container(
+                      color: Colors.blue,
+                      constraints: BoxConstraints.expand(),
+                      child: Image.network(
+                        "http://pic9.nipic.com/20100824/2531170_082435310724_2.jpg",
+                        fit: BoxFit.cover,
+                      ),
+                    )))
+              ],
+            ),
+          )),
     );
   }
 

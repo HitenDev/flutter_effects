@@ -30,6 +30,9 @@ dev_dependencies:
   flutter_effects:
     path: ../
 
+  anvil_effect:
+    path: ../anvil_effect/
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec

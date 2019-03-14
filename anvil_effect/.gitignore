@@ -1,3 +1,14 @@
+.DS_Store
+.dart_tool/
+
+.packages
+.pub/
+pubspec.lock
+build/
+ios/.generated/
+ios/Flutter/Generated.xcconfig
+ios/Runner/GeneratedPluginRegistrant.*
+
 # Miscellaneous
 *.class
 *.log
@@ -8,7 +19,7 @@
 .buildlog/
 .history
 .svn/
-pubspec.lock
+
 # IntelliJ related
 *.iml
 *.ipr
@@ -71,3 +82,4 @@ pubspec.lock
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+
