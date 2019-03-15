@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class DiffScaleText extends StatefulWidget {
-
   final String text;
+  final TextStyle textStyle;
 
-  const DiffScaleText({Key key, this.text})
+  const DiffScaleText({Key key, this.text, this.textStyle})
       : assert(text != null),
         super(key: key);
 
@@ -18,7 +18,6 @@ class DiffScaleText extends StatefulWidget {
 class _DiffScaleTextState extends State<DiffScaleText>
     with TickerProviderStateMixin<DiffScaleText> {
   AnimationController _animationController;
-
 
   @override
   void initState() {
@@ -45,27 +44,26 @@ class _DiffScaleTextState extends State<DiffScaleText>
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
+    TextStyle textStyle = widget.textStyle == null
+        ? TextStyle(
+      fontSize: 20,
+      color: Colors.white,
+    )
+        : widget.textStyle;
     return AnimatedBuilder(
       animation: _animationController,
       builder: (BuildContext context, Widget child) {
         return RepaintBoundary(
             child: CustomPaint(
               child: Text(widget.text,
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.transparent,
-                  ),
+                  style: textStyle.merge(TextStyle(color: Color(0x00000000))),
                   maxLines: 1,
                   textDirection: TextDirection.ltr),
               foregroundPainter: _DiffText(
                   text: widget.text,
-                  textStyle: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
+                  textStyle: textStyle,
                   progress: _animationController.value),
             ));
       },
@@ -101,63 +99,69 @@ class _DiffText extends CustomPainter {
         if (_oldTextLayoutInfo.needMove) {
           double p = percent * 2;
           p = p > 1 ? 1 : p;
-          var textPainter = TextPainter(
-              text: TextSpan(text: _oldTextLayoutInfo.text, style: textStyle),
-              textDirection: TextDirection.ltr);
-          textPainter.textDirection = TextDirection.ltr;
-          textPainter.textAlign = TextAlign.center;
-          textPainter.layout();
-          textPainter.paint(
+          drawText(
               canvas,
+              _oldTextLayoutInfo.text,
+              1,
+              1,
               Offset(
                   _oldTextLayoutInfo.offsetX -
                       (_oldTextLayoutInfo.offsetX - _oldTextLayoutInfo.toX) * p,
-                  _oldTextLayoutInfo.offsetY));
+                  _oldTextLayoutInfo.offsetY),
+              _oldTextLayoutInfo);
         } else {
-          var textPaint = Paint();
-          textPaint.color = textStyle.color
-              .withAlpha((textStyle.color.alpha * percent).floor());
-          var textPainter = TextPainter(
-              text: TextSpan(
-                  text: _oldTextLayoutInfo.text,
-                  style: textStyle.merge(TextStyle(
-                      color: null,
-                      foreground: textPaint,
-                      textBaseline: TextBaseline.ideographic))),
-              textDirection: TextDirection.ltr);
-          textPainter.textAlign = TextAlign.center;
-          textPainter.textScaleFactor = 1 - percent;
-          textPainter.textDirection = TextDirection.ltr;
-          textPainter.layout();
-          textPainter.paint(canvas,
-              Offset(_oldTextLayoutInfo.offsetX, _oldTextLayoutInfo.offsetY));
+          drawText(
+              canvas,
+              _oldTextLayoutInfo.text,
+              1 - percent,
+              percent,
+              Offset(_oldTextLayoutInfo.offsetX, _oldTextLayoutInfo.offsetY),
+              _oldTextLayoutInfo);
         }
       }
     } else {
+      //no oldText
       percent = 1;
     }
     for (_TextLayoutInfo _textLayoutInfo in _textLayoutInfo) {
       if (!_textLayoutInfo.needMove) {
-        var textPaint = Paint();
-        textPaint.color = textStyle.color
-            .withAlpha((textStyle.color.alpha * percent).floor());
-        var textPainter = TextPainter(
-            text: TextSpan(
-                text: _textLayoutInfo.text,
-                style: textStyle.merge(TextStyle(
-                    color: null,
-                    foreground: textPaint,
-                    textBaseline: TextBaseline.ideographic))),
-            textDirection: TextDirection.ltr);
-        textPainter.textAlign = TextAlign.center;
-        textPainter.textScaleFactor = percent;
-        textPainter.textDirection = TextDirection.ltr;
-        textPainter.layout();
-        textPainter.paint(
-            canvas, Offset(_textLayoutInfo.offsetX, _textLayoutInfo.offsetY));
+        drawText(
+            canvas,
+            _textLayoutInfo.text,
+            percent,
+            percent,
+            Offset(_textLayoutInfo.offsetX, _textLayoutInfo.offsetY),
+            _textLayoutInfo);
       }
     }
     canvas.restore();
+  }
+
+  void drawText(Canvas canvas, String text, double textScaleFactor,
+      double alphaFactor, Offset offset, _TextLayoutInfo textLayoutInfo) {
+    var textPaint = Paint();
+    if (alphaFactor == 1) {
+      textPaint.color = textStyle.color;
+    } else {
+      textPaint.color = textStyle.color
+          .withAlpha((textStyle.color.alpha * alphaFactor).floor());
+    }
+    var textPainter = TextPainter(
+        text: TextSpan(
+            text: text,
+            style: textStyle.merge(TextStyle(
+                color: null,
+                foreground: textPaint,
+                textBaseline: TextBaseline.ideographic))),
+        textDirection: TextDirection.ltr);
+    textPainter.textAlign = TextAlign.center;
+    textPainter.textScaleFactor = textScaleFactor;
+    textPainter.textDirection = TextDirection.ltr;
+    textPainter.layout();
+    textPainter.paint(
+        canvas,
+        Offset(offset.dx,
+            offset.dy + (textLayoutInfo.height - textPainter.height) / 2));
   }
 
   @override
