@@ -157,7 +157,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 }),
                 Divider(),
-                createItem(AnvilEffectWidget(), bgColor: Colors.black),
+                createItem(AnvilEffectWidget(child: Text(
+                  "👉AnvilEffect👈",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),), bgColor: Colors.black),
               ],
             ),
           )),

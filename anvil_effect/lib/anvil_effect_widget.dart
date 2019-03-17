@@ -4,6 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class AnvilEffectWidget extends StatefulWidget {
+
+  final Widget child;
+
+  const AnvilEffectWidget({Key key, this.child}) : assert(child!=null),super(key: key);
+
+
+
   @override
   _AnvilEffectWidgetState createState() => _AnvilEffectWidgetState();
 }
@@ -53,10 +60,7 @@ class _AnvilEffectWidgetState extends State<AnvilEffectWidget>
     return Container(
       child: AnimatedBuilder(
         animation: _animationController,
-        child: Text(
-          "👉AnvilEffect👈",
-          style: TextStyle(color: Colors.white, fontSize: 20),
-        ),
+        child: widget.child,
         builder: (BuildContext context, Widget child) {
           double tr = _animationController.value < 0.7
               ? Curves.bounceOut.transform(_animationController.value / 0.7)

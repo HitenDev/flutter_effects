@@ -1,4 +1,4 @@
-package com.example.flutter_effect_text;
+package com.example.flutter_effects;
 
 import android.os.Bundle;
 
