@@ -151,10 +151,15 @@ ScratchCardWidget(
 - foreground : draw foreground covering
 - child : draw child
 
+## <div align="center">More flutter effects are under development, so stay tuned! please follow me.</div><br>
+
 # Author
 - Name: Hiten
 - Blog: https://juejin.im/user/595a16125188250d944c6997
 - Email: zzdxit@gmail.com 
 
+# License
 
-**<div align="center">More flutter effects are under development, so stay tuned! please follow me.</div><br>**
+This project is licensed under the [Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+See [`LICENSE`](LICENSE) for full of the license text.
