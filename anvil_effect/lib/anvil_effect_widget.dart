@@ -4,12 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class AnvilEffectWidget extends StatefulWidget {
-
   final Widget child;
 
-  const AnvilEffectWidget({Key key, this.child}) : assert(child!=null),super(key: key);
-
-
+  const AnvilEffectWidget({super.key, required this.child});
 
   @override
   _AnvilEffectWidgetState createState() => _AnvilEffectWidgetState();
@@ -17,14 +14,14 @@ class AnvilEffectWidget extends StatefulWidget {
 
 class _AnvilEffectWidgetState extends State<AnvilEffectWidget>
     with SingleTickerProviderStateMixin {
-  List<Image> _effectImages;
+  late List<Image> _effectImages;
 
-  AnimationController _animationController;
+  late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    _effectImages = List<Image>();
+    _effectImages = <Image>[];
     for (int i = 0; i <= 51; i++) {
       var str = i.toString();
       if (str.length == 1) {
@@ -61,7 +58,7 @@ class _AnvilEffectWidgetState extends State<AnvilEffectWidget>
       child: AnimatedBuilder(
         animation: _animationController,
         child: widget.child,
-        builder: (BuildContext context, Widget child) {
+        builder: (BuildContext context, Widget? child) {
           double tr = _animationController.value < 0.7
               ? Curves.bounceOut.transform(_animationController.value / 0.7)
               : 1.0;

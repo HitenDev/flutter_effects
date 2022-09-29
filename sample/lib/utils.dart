@@ -5,10 +5,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart' show rootBundle;
 
 class Utils {
-  final context;
-
-  Utils({this.context}) : super();
-
   static double getWidth() {
     return ui.window.physicalSize.width;
   }

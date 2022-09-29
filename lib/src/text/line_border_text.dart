@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class LineBorderText extends StatefulWidget {
   final Widget child;
@@ -10,12 +9,11 @@ class LineBorderText extends StatefulWidget {
   final dynamic tag;
 
   const LineBorderText(
-      {Key key,
-      this.child,
+      {super.key,
+      required this.child,
       this.size = Size.zero,
       this.autoAnim = false,
-      this.tag = ""})
-      : super(key: key);
+      this.tag = ""});
 
   @override
   _LineBorderTextState createState() => _LineBorderTextState();
@@ -23,7 +21,7 @@ class LineBorderText extends StatefulWidget {
 
 class _LineBorderTextState extends State<LineBorderText>
     with TickerProviderStateMixin<LineBorderText> {
-  AnimationController _animationController;
+  late AnimationController _animationController;
 
   @override
   void initState() {
@@ -70,7 +68,7 @@ class _LineBorderTextState extends State<LineBorderText>
         onTap: onTap,
         child: AnimatedBuilder(
           animation: _animationController,
-          builder: (BuildContext context, Widget child) {
+          builder: (BuildContext context, Widget? child) {
             double progress = _animationController.value;
             return CustomPaint(
               foregroundPainter: _BorderLinePainter(progress),
