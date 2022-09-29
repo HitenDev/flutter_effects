@@ -16,7 +16,7 @@ class LineBorderText extends StatefulWidget {
       this.tag = ""});
 
   @override
-  _LineBorderTextState createState() => _LineBorderTextState();
+  State<LineBorderText> createState() => _LineBorderTextState();
 }
 
 class _LineBorderTextState extends State<LineBorderText>
@@ -26,8 +26,8 @@ class _LineBorderTextState extends State<LineBorderText>
   @override
   void initState() {
     super.initState();
-    _animationController =
-        AnimationController(duration: Duration(milliseconds: 600), vsync: this);
+    _animationController = AnimationController(
+        duration: const Duration(milliseconds: 600), vsync: this);
     _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _animationController.value = 0;
@@ -72,8 +72,8 @@ class _LineBorderTextState extends State<LineBorderText>
             double progress = _animationController.value;
             return CustomPaint(
               foregroundPainter: _BorderLinePainter(progress),
-              child: RepaintBoundary(child: widget.child),
               size: widget.size,
+              child: RepaintBoundary(child: widget.child),
             );
           },
         ));
@@ -100,7 +100,7 @@ class _BorderLinePainter extends CustomPainter {
     double width = size.width;
     double height = size.height;
 
-    Offset pA = Offset(0, 0);
+    Offset pA = const Offset(0, 0);
     Offset pB = Offset(width, 0);
     Offset pC = Offset(width, height);
     Offset pD = Offset(0, height);

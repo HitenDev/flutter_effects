@@ -12,7 +12,7 @@ class RainbowText extends StatefulWidget {
       {super.key, required this.colors, required this.text, this.loop = false});
 
   @override
-  _RainbowTextState createState() => _RainbowTextState();
+  State<RainbowText> createState() => _RainbowTextState();
 }
 
 class _RainbowTextState extends State<RainbowText>
@@ -25,7 +25,7 @@ class _RainbowTextState extends State<RainbowText>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-        duration: Duration(milliseconds: 1000), vsync: this);
+        duration: const Duration(milliseconds: 1000), vsync: this);
     if (widget.loop) {
       _animationController.forward();
       _animationController.addStatusListener((status) {
@@ -41,7 +41,7 @@ class _RainbowTextState extends State<RainbowText>
 
   void calculateTextWidth() {
     var textPainter = TextPainter(
-        text: TextSpan(text: widget.text, style: TextStyle(fontSize: 20)),
+        text: TextSpan(text: widget.text, style: const TextStyle(fontSize: 20)),
         textDirection: TextDirection.ltr);
     textPainter.layout();
   }
@@ -62,7 +62,7 @@ class _RainbowTextState extends State<RainbowText>
       return;
     }
     _textSize = size;
-    print("onSizeCallBack:" + _textSize.toString());
+    // print("onSizeCallBack:" + _textSize.toString());
   }
 
   @override
@@ -75,8 +75,8 @@ class _RainbowTextState extends State<RainbowText>
       animation: _animationController,
       builder: (BuildContext context, Widget? child) {
         var width = _textSize.width;
-        TextStyle textStyle = TextStyle(fontSize: 20);
-        if (widget.colors.length > 0 && width > 0) {
+        TextStyle textStyle = const TextStyle(fontSize: 20);
+        if (widget.colors.isNotEmpty && width > 0) {
           Shader shader = LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,

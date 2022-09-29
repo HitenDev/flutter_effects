@@ -9,7 +9,7 @@ class AnvilEffectWidget extends StatefulWidget {
   const AnvilEffectWidget({super.key, required this.child});
 
   @override
-  _AnvilEffectWidgetState createState() => _AnvilEffectWidgetState();
+  State<AnvilEffectWidget> createState() => _AnvilEffectWidgetState();
 }
 
 class _AnvilEffectWidgetState extends State<AnvilEffectWidget>
@@ -32,11 +32,11 @@ class _AnvilEffectWidgetState extends State<AnvilEffectWidget>
         package: "anvil_effect",
       ));
     }
-    _animationController =
-        AnimationController(duration: Duration(milliseconds: 600), vsync: this);
+    _animationController = AnimationController(
+        duration: const Duration(milliseconds: 600), vsync: this);
     _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        Timer.periodic(Duration(seconds: 1), (timer) {
+        Timer.periodic(const Duration(seconds: 1), (timer) {
           _animationController.value = 0;
           _animationController.forward();
           timer.cancel();
@@ -54,26 +54,24 @@ class _AnvilEffectWidgetState extends State<AnvilEffectWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: AnimatedBuilder(
-        animation: _animationController,
-        child: widget.child,
-        builder: (BuildContext context, Widget? child) {
-          double tr = _animationController.value < 0.7
-              ? Curves.bounceOut.transform(_animationController.value / 0.7)
-              : 1.0;
-          Offset transform = Offset(0, -50 * (1 - tr));
-          int _imageIndex = _animationController.value >= 0.3
-              ? 51 * (_animationController.value - 0.3) ~/ 0.7
-              : -1;
-          return Stack(alignment: Alignment.center, children: <Widget>[
-            Opacity(
-                opacity: tr,
-                child: Transform.translate(offset: transform, child: child)),
-            _imageIndex < 0 ? Container() : _effectImages[_imageIndex]
-          ]);
-        },
-      ),
+    return AnimatedBuilder(
+      animation: _animationController,
+      child: widget.child,
+      builder: (BuildContext context, Widget? child) {
+        double tr = _animationController.value < 0.7
+            ? Curves.bounceOut.transform(_animationController.value / 0.7)
+            : 1.0;
+        Offset transform = Offset(0, -50 * (1 - tr));
+        int imageIndex = _animationController.value >= 0.3
+            ? 51 * (_animationController.value - 0.3) ~/ 0.7
+            : -1;
+        return Stack(alignment: Alignment.center, children: <Widget>[
+          Opacity(
+              opacity: tr,
+              child: Transform.translate(offset: transform, child: child)),
+          imageIndex < 0 ? Container() : _effectImages[imageIndex]
+        ]);
+      },
     );
   }
 }

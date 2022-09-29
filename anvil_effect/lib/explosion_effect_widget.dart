@@ -1,4 +1,4 @@
-import 'dart:math' as Math;
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:anvil_effect/pixel_utils.dart';
@@ -13,7 +13,7 @@ class ExplosionWidget extends StatefulWidget {
   const ExplosionWidget({super.key, this.child, this.bound, required this.tag});
 
   @override
-  _ExplosionWidgetState createState() => _ExplosionWidgetState();
+  State<ExplosionWidget> createState() => _ExplosionWidgetState();
 }
 
 class _ExplosionWidgetState extends State<ExplosionWidget>
@@ -29,8 +29,8 @@ class _ExplosionWidgetState extends State<ExplosionWidget>
   void initState() {
     super.initState();
     globalKey = GlobalObjectKey(widget.tag);
-    _animationController =
-        AnimationController(duration: Duration(milliseconds: 600), vsync: this);
+    _animationController = AnimationController(
+        duration: const Duration(milliseconds: 600), vsync: this);
   }
 
   @override
@@ -79,13 +79,12 @@ class _ExplosionWidgetState extends State<ExplosionWidget>
               animation: _animationController,
               builder: (context, child) {
                 return ExplosionRenderObjectWidget(
-                  key: globalKey,
-                  bound: widget.bound,
-                  child: widget.child,
-                  byteData: _byteData,
-                  imageSize: _imageSize,
-                  progress: _animationController.value,
-                );
+                    key: globalKey,
+                    bound: widget.bound,
+                    byteData: _byteData,
+                    imageSize: _imageSize,
+                    progress: _animationController.value,
+                    child: widget.child);
               }),
         ));
   }
@@ -107,25 +106,25 @@ class ExplosionRenderObjectWidget extends RepaintBoundary {
       : super(key: key, child: child);
 
   @override
-  _ExplosionRenderObject createRenderObject(BuildContext context) =>
-      _ExplosionRenderObject(
+  ExplosionRenderObject createRenderObject(BuildContext context) =>
+      ExplosionRenderObject(
           byteData: byteData, imageSize: imageSize, bound: bound);
 
   @override
   void updateRenderObject(
-      BuildContext context, _ExplosionRenderObject renderObject) {
+      BuildContext context, ExplosionRenderObject renderObject) {
     renderObject.update(byteData, imageSize, progress);
   }
 }
 
-class _ExplosionRenderObject extends RenderRepaintBoundary {
+class ExplosionRenderObject extends RenderRepaintBoundary {
   ByteData? byteData;
   Size? imageSize;
   double progress = 0;
-  List<_Particle> particles = [];
+  List<_Particle> _particles = [];
   Rect? bound;
 
-  _ExplosionRenderObject(
+  ExplosionRenderObject(
       {this.byteData, this.imageSize, this.bound, RenderBox? child})
       : super(child: child);
 
@@ -142,13 +141,11 @@ class _ExplosionRenderObject extends RenderRepaintBoundary {
         imageSize != null &&
         progress != 0 &&
         progress != 1) {
-      if (particles.isEmpty) {
-        if (bound == null) {
-          bound = Rect.fromLTWH(0, 0, size.width, size.height * 2);
-        }
-        particles = initParticleList(bound!, byteData!, imageSize!);
+      if (_particles.isEmpty) {
+        bound ??= Rect.fromLTWH(0, 0, size.width, size.height * 2);
+        _particles = _initParticleList(bound!, byteData!, imageSize!);
       }
-      draw(context.canvas, particles, progress);
+      _draw(context.canvas, _particles, progress);
     } else {
       if (child != null) {
         context.paintChild(child!, offset);
@@ -157,22 +154,22 @@ class _ExplosionRenderObject extends RenderRepaintBoundary {
   }
 }
 
-const double END_VALUE = 1.4;
+const double kEndValue = 1.4;
 const double V = 2;
 const double X = 5;
 const double Y = 20;
 const double W = 1;
 
-List<_Particle> initParticleList(
+List<_Particle> _initParticleList(
     Rect bound, ByteData byteData, Size imageSize) {
   int partLen = 15;
   List<_Particle> particles = List.filled(partLen * partLen, _Particle());
-  Math.Random random = new Math.Random(DateTime.now().millisecondsSinceEpoch);
+  math.Random random = math.Random(DateTime.now().millisecondsSinceEpoch);
   int w = imageSize.width ~/ (partLen + 2);
   int h = imageSize.height ~/ (partLen + 2);
   for (int i = 0; i < partLen; i++) {
     for (int j = 0; j < partLen; j++) {
-      particles[(i * partLen) + j] = generateParticle(
+      particles[(i * partLen) + j] = _generateParticle(
           getColorByPixel(byteData, imageSize,
               Offset((j + 1) * w.toDouble(), (i + 1) * h.toDouble())),
           random,
@@ -182,7 +179,7 @@ List<_Particle> initParticleList(
   return particles;
 }
 
-bool draw(Canvas canvas, List<_Particle> particles, double progress) {
+bool _draw(Canvas canvas, List<_Particle> particles, double progress) {
   Paint paint = Paint();
   for (int i = 0; i < particles.length; i++) {
     _Particle particle = particles[i];
@@ -197,7 +194,7 @@ bool draw(Canvas canvas, List<_Particle> particles, double progress) {
   return true;
 }
 
-_Particle generateParticle(Color color, Math.Random random, Rect bound) {
+_Particle _generateParticle(Color color, math.Random random, Rect bound) {
   _Particle particle = _Particle();
   particle.color = color;
   particle.radius = V;
@@ -226,7 +223,7 @@ _Particle generateParticle(Color color, Math.Random random, Rect bound) {
   f = bound.center.dy + (Y * (random.nextDouble() - 0.5));
   particle.baseCy = f;
   particle.cy = f;
-  particle.life = END_VALUE / 10 * random.nextDouble();
+  particle.life = kEndValue / 10 * random.nextDouble();
   particle.overflow = 0.4 * random.nextDouble();
   particle.alpha = 1;
   return particle;
@@ -250,20 +247,20 @@ class _Particle {
 
   void advance(double factor) {
     double f = 0;
-    double normalization = factor / END_VALUE;
+    double normalization = factor / kEndValue;
     if (normalization < life || normalization > 1 - overflow) {
       alpha = 0;
       return;
     }
     normalization = (normalization - life) / (1 - life - overflow);
-    double f2 = normalization * END_VALUE;
+    double f2 = normalization * kEndValue;
     if (normalization >= 0.7) {
       f = (normalization - 0.7) / 0.3;
     }
     alpha = 1 - f;
     f = bottom * f2;
     cx = baseCx + f;
-    cy = (baseCy - this.neg * Math.pow(f, 2.0)) - f * mag;
+    cy = (baseCy - neg * math.pow(f, 2.0)) - f * mag;
     radius = V + (baseRadius - V) * f2;
   }
 }

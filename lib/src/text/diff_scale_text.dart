@@ -1,4 +1,4 @@
-import 'dart:math' as Math;
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -9,7 +9,7 @@ class DiffScaleText extends StatefulWidget {
   const DiffScaleText({super.key, required this.text, this.textStyle});
 
   @override
-  _DiffScaleTextState createState() => _DiffScaleTextState();
+  State<DiffScaleText> createState() => _DiffScaleTextState();
 }
 
 class _DiffScaleTextState extends State<DiffScaleText>
@@ -19,8 +19,8 @@ class _DiffScaleTextState extends State<DiffScaleText>
   @override
   void initState() {
     super.initState();
-    _animationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+    _animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 400));
     _animationController.addStatusListener((status) {});
   }
 
@@ -44,20 +44,20 @@ class _DiffScaleTextState extends State<DiffScaleText>
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle =
-        widget.textStyle ?? TextStyle(fontSize: 20, color: Colors.white);
+        widget.textStyle ?? const TextStyle(fontSize: 20, color: Colors.white);
     return AnimatedBuilder(
       animation: _animationController,
       builder: (BuildContext context, Widget? child) {
         return RepaintBoundary(
             child: CustomPaint(
-          child: Text(widget.text,
-              style: textStyle.merge(TextStyle(color: Color(0x00000000))),
-              maxLines: 1,
-              textDirection: TextDirection.ltr),
           foregroundPainter: _DiffText(
               text: widget.text,
               textStyle: textStyle,
               progress: _animationController.value),
+          child: Text(widget.text,
+              style: textStyle.merge(const TextStyle(color: Color(0x00000000))),
+              maxLines: 1,
+              textDirection: TextDirection.ltr),
         ));
       },
     );
@@ -76,49 +76,39 @@ class _DiffText extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double percent = Math.max(0, Math.min(1, progress));
-    if (_textLayoutInfo.length == 0) {
+    double percent = math.max(0, math.min(1, progress));
+    if (_textLayoutInfo.isEmpty) {
       calculateLayoutInfo(text, _textLayoutInfo);
     }
     canvas.save();
-    if (_oldTextLayoutInfo.length > 0) {
-      for (_TextLayoutInfo _oldTextLayoutInfo in _oldTextLayoutInfo) {
-        if (_oldTextLayoutInfo.needMove) {
+    if (_oldTextLayoutInfo.isNotEmpty) {
+      for (_TextLayoutInfo layoutInfo in _oldTextLayoutInfo) {
+        if (layoutInfo.needMove) {
           double p = percent * 2;
           p = p > 1 ? 1 : p;
           drawText(
               canvas,
-              _oldTextLayoutInfo.text,
+              layoutInfo.text,
               1,
               1,
               Offset(
-                  _oldTextLayoutInfo.offsetX -
-                      (_oldTextLayoutInfo.offsetX - _oldTextLayoutInfo.toX) * p,
-                  _oldTextLayoutInfo.offsetY),
-              _oldTextLayoutInfo);
+                  layoutInfo.offsetX -
+                      (layoutInfo.offsetX - layoutInfo.toX) * p,
+                  layoutInfo.offsetY),
+              layoutInfo);
         } else {
-          drawText(
-              canvas,
-              _oldTextLayoutInfo.text,
-              1 - percent,
-              percent,
-              Offset(_oldTextLayoutInfo.offsetX, _oldTextLayoutInfo.offsetY),
-              _oldTextLayoutInfo);
+          drawText(canvas, layoutInfo.text, 1 - percent, percent,
+              Offset(layoutInfo.offsetX, layoutInfo.offsetY), layoutInfo);
         }
       }
     } else {
       //no oldText
       percent = 1;
     }
-    for (_TextLayoutInfo _textLayoutInfo in _textLayoutInfo) {
-      if (!_textLayoutInfo.needMove) {
-        drawText(
-            canvas,
-            _textLayoutInfo.text,
-            percent,
-            percent,
-            Offset(_textLayoutInfo.offsetX, _textLayoutInfo.offsetY),
-            _textLayoutInfo);
+    for (var layoutInfo in _textLayoutInfo) {
+      if (!layoutInfo.needMove) {
+        drawText(canvas, layoutInfo.text, percent, percent,
+            Offset(layoutInfo.offsetX, layoutInfo.offsetY), layoutInfo);
       }
     }
     canvas.restore();
@@ -157,14 +147,14 @@ class _DiffText extends CustomPainter {
     if (oldDelegate is _DiffText) {
       String oldFrameText = oldDelegate.text;
       if (oldFrameText == text) {
-        this._oldText = oldDelegate._oldText;
-        this._oldTextLayoutInfo = oldDelegate._oldTextLayoutInfo;
-        this._textLayoutInfo = oldDelegate._textLayoutInfo;
-        if (this.progress == oldDelegate.progress) {
+        _oldText = oldDelegate._oldText;
+        _oldTextLayoutInfo = oldDelegate._oldTextLayoutInfo;
+        _textLayoutInfo = oldDelegate._textLayoutInfo;
+        if (progress == oldDelegate.progress) {
           return false;
         }
       } else {
-        this._oldText = oldDelegate.text;
+        _oldText = oldDelegate.text;
         calculateLayoutInfo(text, _textLayoutInfo);
         calculateLayoutInfo(_oldText, _oldTextLayoutInfo);
         calculateMove();
@@ -201,10 +191,10 @@ class _DiffText extends CustomPainter {
   }
 
   void calculateMove() {
-    if (_oldTextLayoutInfo.length == 0) {
+    if (_oldTextLayoutInfo.isEmpty) {
       return;
     }
-    if (_textLayoutInfo.length == 0) {
+    if (_textLayoutInfo.isEmpty) {
       return;
     }
 
