@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -11,18 +13,18 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Blog Demo'),
+      home: const MyHomePage(title: 'Blog Demo'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -44,10 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               width: 100,
                               height: 100,
                               color: Colors.black,
-                              child: Text(
-                                "Text",
-                                style: TextStyle(color: Colors.white),
-                              ))),
+                              child: const Text("Text",
+                                  style: TextStyle(color: Colors.white)))),
                     )));
           },
           itemCount: 10),
@@ -56,9 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class _CustomRenderObjectWidget extends SingleChildRenderObjectWidget {
-  final Widget child;
-
-  _CustomRenderObjectWidget({this.child}) : super(child: child);
+  const _CustomRenderObjectWidget({Widget? child}) : super(child: child);
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _CustomRenderObject();
@@ -69,19 +67,7 @@ class _CustomRenderObject extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
-    print(offset);
+    // print(offset);
     context.canvas.drawCircle(offset, 3, Paint()..color = Colors.red);
-  }
-}
-
-class _BorderLinePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawCircle(Offset.zero, 3, Paint()..color = Colors.red);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
   }
 }

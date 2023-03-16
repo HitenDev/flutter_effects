@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-
 typedef EasyCallback<P, R> = R Function(P param);
+
 class RainbowText extends StatefulWidget {
   final List<Color> colors;
   final String text;
   final bool loop;
 
-  const RainbowText({Key key, this.colors, this.text, this.loop = false})
-      : assert(colors != null),
-        super(key: key);
+  const RainbowText(
+      {super.key, required this.colors, required this.text, this.loop = false});
 
   @override
-  _RainbowTextState createState() => _RainbowTextState();
+  State<RainbowText> createState() => _RainbowTextState();
 }
 
 class _RainbowTextState extends State<RainbowText>
     with TickerProviderStateMixin {
-  AnimationController _animationController;
+  late AnimationController _animationController;
 
   Size _textSize = Size.zero;
 
@@ -26,7 +25,7 @@ class _RainbowTextState extends State<RainbowText>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-        duration: Duration(milliseconds: 1000), vsync: this);
+        duration: const Duration(milliseconds: 1000), vsync: this);
     if (widget.loop) {
       _animationController.forward();
       _animationController.addStatusListener((status) {
@@ -42,7 +41,7 @@ class _RainbowTextState extends State<RainbowText>
 
   void calculateTextWidth() {
     var textPainter = TextPainter(
-        text: TextSpan(text: widget.text, style: TextStyle(fontSize: 20)),
+        text: TextSpan(text: widget.text, style: const TextStyle(fontSize: 20)),
         textDirection: TextDirection.ltr);
     textPainter.layout();
   }
@@ -59,11 +58,11 @@ class _RainbowTextState extends State<RainbowText>
   }
 
   void onSizeCallBack(Size size) {
-    if (_textSize != null && _textSize == size) {
+    if (_textSize == size) {
       return;
     }
     _textSize = size;
-    print("onSizeCallBack:" + _textSize.toString());
+    // print("onSizeCallBack:" + _textSize.toString());
   }
 
   @override
@@ -74,17 +73,17 @@ class _RainbowTextState extends State<RainbowText>
     }
     return AnimatedBuilder(
       animation: _animationController,
-      builder: (BuildContext context, Widget child) {
+      builder: (BuildContext context, Widget? child) {
         var width = _textSize.width;
-        TextStyle textStyle = TextStyle(fontSize: 20);
-        if (widget.colors.length > 0 && width > 0) {
+        TextStyle textStyle = const TextStyle(fontSize: 20);
+        if (widget.colors.isNotEmpty && width > 0) {
           Shader shader = LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: widget.colors,
-              tileMode: TileMode.repeated)
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: widget.colors,
+                  tileMode: TileMode.repeated)
               .createShader(Rect.fromLTWH(
-              _animationController.value * width, 0, width, 0));
+                  _animationController.value * width, 0, width, 0));
           var foreground = Paint();
           foreground.shader = shader;
           textStyle = textStyle.merge(TextStyle(foreground: foreground));
@@ -102,7 +101,7 @@ class _RainbowTextState extends State<RainbowText>
 }
 
 class _SizeGetPainter extends CustomPainter {
-  final EasyCallback<Size, void> sizeCallBack;
+  final EasyCallback<Size, void>? sizeCallBack;
 
   final dynamic tag;
 
@@ -110,9 +109,7 @@ class _SizeGetPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (sizeCallBack != null) {
-      sizeCallBack(size);
-    }
+    sizeCallBack?.call(size);
   }
 
   @override

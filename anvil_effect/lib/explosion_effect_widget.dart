@@ -1,39 +1,36 @@
-import 'dart:math' as Math;
+import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:anvil_effect/pixel_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 
 class ExplosionWidget extends StatefulWidget {
-  final Widget child;
-  final Rect bound;
+  final Widget? child;
+  final Rect? bound;
   final String tag;
 
-  const ExplosionWidget({Key key, this.child, this.bound, this.tag})
-      : super(key: key);
+  const ExplosionWidget({super.key, this.child, this.bound, required this.tag});
 
   @override
-  _ExplosionWidgetState createState() => _ExplosionWidgetState();
+  State<ExplosionWidget> createState() => _ExplosionWidgetState();
 }
 
 class _ExplosionWidgetState extends State<ExplosionWidget>
     with SingleTickerProviderStateMixin {
-  ByteData _byteData;
-  Size _imageSize;
+  ByteData? _byteData;
+  Size? _imageSize;
 
-  AnimationController _animationController;
+  late AnimationController _animationController;
 
-  GlobalObjectKey globalKey;
+  late GlobalObjectKey globalKey;
 
   @override
   void initState() {
     super.initState();
     globalKey = GlobalObjectKey(widget.tag);
-    _animationController =
-        AnimationController(duration: Duration(milliseconds: 600), vsync: this);
+    _animationController = AnimationController(
+        duration: const Duration(milliseconds: 600), vsync: this);
   }
 
   @override
@@ -44,9 +41,9 @@ class _ExplosionWidgetState extends State<ExplosionWidget>
 
   void onTap() {
     if (_byteData == null || _imageSize == null) {
-      RenderRepaintBoundary boundary =
-          globalKey.currentContext.findRenderObject();
-      boundary.toImage().then((image) {
+      final boundary = globalKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+      boundary?.toImage().then((image) {
         _imageSize = Size(image.width.toDouble(), image.height.toDouble());
         image.toByteData().then((byteData) {
           _byteData = byteData;
@@ -82,26 +79,26 @@ class _ExplosionWidgetState extends State<ExplosionWidget>
               animation: _animationController,
               builder: (context, child) {
                 return ExplosionRenderObjectWidget(
-                  key: globalKey,
-                  child: widget.child,
-                  byteData: _byteData,
-                  imageSize: _imageSize,
-                  progress: _animationController.value,
-                );
+                    key: globalKey,
+                    bound: widget.bound,
+                    byteData: _byteData,
+                    imageSize: _imageSize,
+                    progress: _animationController.value,
+                    child: widget.child);
               }),
         ));
   }
 }
 
 class ExplosionRenderObjectWidget extends RepaintBoundary {
-  final ByteData byteData;
-  final Size imageSize;
-  final double progress;
-  final Rect bound;
+  final ByteData? byteData;
+  final Size? imageSize;
+  final double? progress;
+  final Rect? bound;
 
   const ExplosionRenderObjectWidget(
-      {Key key,
-      Widget child,
+      {Key? key,
+      Widget? child,
       this.byteData,
       this.imageSize,
       this.progress,
@@ -109,32 +106,32 @@ class ExplosionRenderObjectWidget extends RepaintBoundary {
       : super(key: key, child: child);
 
   @override
-  _ExplosionRenderObject createRenderObject(BuildContext context) =>
-      _ExplosionRenderObject(
+  ExplosionRenderObject createRenderObject(BuildContext context) =>
+      ExplosionRenderObject(
           byteData: byteData, imageSize: imageSize, bound: bound);
 
   @override
   void updateRenderObject(
-      BuildContext context, _ExplosionRenderObject renderObject) {
+      BuildContext context, ExplosionRenderObject renderObject) {
     renderObject.update(byteData, imageSize, progress);
   }
 }
 
-class _ExplosionRenderObject extends RenderRepaintBoundary {
-  ByteData byteData;
-  Size imageSize;
-  double progress;
-  List<_Particle> particles;
-  Rect bound;
+class ExplosionRenderObject extends RenderRepaintBoundary {
+  ByteData? byteData;
+  Size? imageSize;
+  double progress = 0;
+  List<_Particle> _particles = [];
+  Rect? bound;
 
-  _ExplosionRenderObject(
-      {this.byteData, this.imageSize, this.bound, RenderBox child})
+  ExplosionRenderObject(
+      {this.byteData, this.imageSize, this.bound, RenderBox? child})
       : super(child: child);
 
-  void update(ByteData byteData, Size imageSize, double progress) {
+  void update(ByteData? byteData, Size? imageSize, double? progress) {
     this.byteData = byteData;
     this.imageSize = imageSize;
-    this.progress = progress;
+    this.progress = progress ?? 0;
     markNeedsPaint();
   }
 
@@ -144,37 +141,35 @@ class _ExplosionRenderObject extends RenderRepaintBoundary {
         imageSize != null &&
         progress != 0 &&
         progress != 1) {
-      if (particles == null) {
-        if (bound == null) {
-          bound = Rect.fromLTWH(0, 0, size.width, size.height * 2);
-        }
-        particles = initParticleList(bound, byteData, imageSize);
+      if (_particles.isEmpty) {
+        bound ??= Rect.fromLTWH(0, 0, size.width, size.height * 2);
+        _particles = _initParticleList(bound!, byteData!, imageSize!);
       }
-      draw(context.canvas, particles, progress);
+      _draw(context.canvas, _particles, progress);
     } else {
       if (child != null) {
-        context.paintChild(child, offset);
+        context.paintChild(child!, offset);
       }
     }
   }
 }
 
-const double END_VALUE = 1.4;
+const double kEndValue = 1.4;
 const double V = 2;
 const double X = 5;
 const double Y = 20;
 const double W = 1;
 
-List<_Particle> initParticleList(
+List<_Particle> _initParticleList(
     Rect bound, ByteData byteData, Size imageSize) {
   int partLen = 15;
-  List<_Particle> particles = List(partLen * partLen);
-  Math.Random random = new Math.Random(DateTime.now().millisecondsSinceEpoch);
+  List<_Particle> particles = List.filled(partLen * partLen, _Particle());
+  math.Random random = math.Random(DateTime.now().millisecondsSinceEpoch);
   int w = imageSize.width ~/ (partLen + 2);
   int h = imageSize.height ~/ (partLen + 2);
   for (int i = 0; i < partLen; i++) {
     for (int j = 0; j < partLen; j++) {
-      particles[(i * partLen) + j] = generateParticle(
+      particles[(i * partLen) + j] = _generateParticle(
           getColorByPixel(byteData, imageSize,
               Offset((j + 1) * w.toDouble(), (i + 1) * h.toDouble())),
           random,
@@ -184,7 +179,7 @@ List<_Particle> initParticleList(
   return particles;
 }
 
-bool draw(Canvas canvas, List<_Particle> particles, double progress) {
+bool _draw(Canvas canvas, List<_Particle> particles, double progress) {
   Paint paint = Paint();
   for (int i = 0; i < particles.length; i++) {
     _Particle particle = particles[i];
@@ -199,7 +194,7 @@ bool draw(Canvas canvas, List<_Particle> particles, double progress) {
   return true;
 }
 
-_Particle generateParticle(Color color, Math.Random random, Rect bound) {
+_Particle _generateParticle(Color color, math.Random random, Rect bound) {
   _Particle particle = _Particle();
   particle.color = color;
   particle.radius = V;
@@ -216,7 +211,9 @@ _Particle generateParticle(Color color, Math.Random random, Rect bound) {
   particle.bottom = (bound.height * (random.nextDouble() - 0.5)) * 1.8;
   double f = nextDouble < 0.2
       ? particle.bottom
-      : nextDouble < 0.8 ? particle.bottom * 0.6 : particle.bottom * 0.3;
+      : nextDouble < 0.8
+          ? particle.bottom * 0.6
+          : particle.bottom * 0.3;
   particle.bottom = f;
   particle.mag = 4.0 * particle.top / particle.bottom;
   particle.neg = (-particle.mag) / particle.bottom;
@@ -226,44 +223,44 @@ _Particle generateParticle(Color color, Math.Random random, Rect bound) {
   f = bound.center.dy + (Y * (random.nextDouble() - 0.5));
   particle.baseCy = f;
   particle.cy = f;
-  particle.life = END_VALUE / 10 * random.nextDouble();
+  particle.life = kEndValue / 10 * random.nextDouble();
   particle.overflow = 0.4 * random.nextDouble();
   particle.alpha = 1;
   return particle;
 }
 
 class _Particle {
-  double alpha;
-  Color color;
-  double cx;
-  double cy;
-  double radius;
-  double baseCx;
-  double baseCy;
-  double baseRadius;
-  double top;
-  double bottom;
-  double mag;
-  double neg;
-  double life;
-  double overflow;
+  double alpha = 0;
+  Color color = Colors.black;
+  double cx = 0;
+  double cy = 0;
+  double radius = 0;
+  double baseCx = 0;
+  double baseCy = 0;
+  double baseRadius = 0;
+  double top = 0;
+  double bottom = 0;
+  double mag = 0;
+  double neg = 0;
+  double life = 0;
+  double overflow = 0;
 
   void advance(double factor) {
     double f = 0;
-    double normalization = factor / END_VALUE;
+    double normalization = factor / kEndValue;
     if (normalization < life || normalization > 1 - overflow) {
       alpha = 0;
       return;
     }
     normalization = (normalization - life) / (1 - life - overflow);
-    double f2 = normalization * END_VALUE;
+    double f2 = normalization * kEndValue;
     if (normalization >= 0.7) {
       f = (normalization - 0.7) / 0.3;
     }
     alpha = 1 - f;
     f = bottom * f2;
     cx = baseCx + f;
-    cy = (baseCy - this.neg * Math.pow(f, 2.0)) - f * mag;
+    cy = (baseCy - neg * math.pow(f, 2.0)) - f * mag;
     radius = V + (baseRadius - V) * f2;
   }
 }

@@ -1,29 +1,26 @@
-import 'dart:math' as Math;
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class DiffScaleText extends StatefulWidget {
   final String text;
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
-  const DiffScaleText({Key key, this.text, this.textStyle})
-      : assert(text != null),
-        super(key: key);
+  const DiffScaleText({super.key, required this.text, this.textStyle});
 
   @override
-  _DiffScaleTextState createState() => _DiffScaleTextState();
+  State<DiffScaleText> createState() => _DiffScaleTextState();
 }
 
 class _DiffScaleTextState extends State<DiffScaleText>
     with TickerProviderStateMixin<DiffScaleText> {
-  AnimationController _animationController;
+  late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    _animationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+    _animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 400));
     _animationController.addStatusListener((status) {});
   }
 
@@ -46,26 +43,22 @@ class _DiffScaleTextState extends State<DiffScaleText>
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = widget.textStyle == null
-        ? TextStyle(
-      fontSize: 20,
-      color: Colors.white,
-    )
-        : widget.textStyle;
+    TextStyle textStyle =
+        widget.textStyle ?? const TextStyle(fontSize: 20, color: Colors.white);
     return AnimatedBuilder(
       animation: _animationController,
-      builder: (BuildContext context, Widget child) {
+      builder: (BuildContext context, Widget? child) {
         return RepaintBoundary(
             child: CustomPaint(
-              child: Text(widget.text,
-                  style: textStyle.merge(TextStyle(color: Color(0x00000000))),
-                  maxLines: 1,
-                  textDirection: TextDirection.ltr),
-              foregroundPainter: _DiffText(
-                  text: widget.text,
-                  textStyle: textStyle,
-                  progress: _animationController.value),
-            ));
+          foregroundPainter: _DiffText(
+              text: widget.text,
+              textStyle: textStyle,
+              progress: _animationController.value),
+          child: Text(widget.text,
+              style: textStyle.merge(const TextStyle(color: Color(0x00000000))),
+              maxLines: 1,
+              textDirection: TextDirection.ltr),
+        ));
       },
     );
   }
@@ -75,63 +68,47 @@ class _DiffText extends CustomPainter {
   final String text;
   final TextStyle textStyle;
   final double progress;
-  String _oldText;
+  String _oldText = "";
   List<_TextLayoutInfo> _textLayoutInfo = [];
   List<_TextLayoutInfo> _oldTextLayoutInfo = [];
-  Alignment alignment;
 
-  _DiffText({this.text,
-    this.textStyle,
-    this.progress = 1,
-    this.alignment = Alignment.center})
-      : assert(text != null),
-        assert(textStyle != null);
+  _DiffText({required this.text, required this.textStyle, this.progress = 1});
 
   @override
   void paint(Canvas canvas, Size size) {
-    double percent = Math.max(0, Math.min(1, progress));
-    if (_textLayoutInfo.length == 0) {
+    double percent = math.max(0, math.min(1, progress));
+    if (_textLayoutInfo.isEmpty) {
       calculateLayoutInfo(text, _textLayoutInfo);
     }
     canvas.save();
-    if (_oldTextLayoutInfo != null && _oldTextLayoutInfo.length > 0) {
-      for (_TextLayoutInfo _oldTextLayoutInfo in _oldTextLayoutInfo) {
-        if (_oldTextLayoutInfo.needMove) {
+    if (_oldTextLayoutInfo.isNotEmpty) {
+      for (_TextLayoutInfo layoutInfo in _oldTextLayoutInfo) {
+        if (layoutInfo.needMove) {
           double p = percent * 2;
           p = p > 1 ? 1 : p;
           drawText(
               canvas,
-              _oldTextLayoutInfo.text,
+              layoutInfo.text,
               1,
               1,
               Offset(
-                  _oldTextLayoutInfo.offsetX -
-                      (_oldTextLayoutInfo.offsetX - _oldTextLayoutInfo.toX) * p,
-                  _oldTextLayoutInfo.offsetY),
-              _oldTextLayoutInfo);
+                  layoutInfo.offsetX -
+                      (layoutInfo.offsetX - layoutInfo.toX) * p,
+                  layoutInfo.offsetY),
+              layoutInfo);
         } else {
-          drawText(
-              canvas,
-              _oldTextLayoutInfo.text,
-              1 - percent,
-              percent,
-              Offset(_oldTextLayoutInfo.offsetX, _oldTextLayoutInfo.offsetY),
-              _oldTextLayoutInfo);
+          drawText(canvas, layoutInfo.text, 1 - percent, percent,
+              Offset(layoutInfo.offsetX, layoutInfo.offsetY), layoutInfo);
         }
       }
     } else {
       //no oldText
       percent = 1;
     }
-    for (_TextLayoutInfo _textLayoutInfo in _textLayoutInfo) {
-      if (!_textLayoutInfo.needMove) {
-        drawText(
-            canvas,
-            _textLayoutInfo.text,
-            percent,
-            percent,
-            Offset(_textLayoutInfo.offsetX, _textLayoutInfo.offsetY),
-            _textLayoutInfo);
+    for (var layoutInfo in _textLayoutInfo) {
+      if (!layoutInfo.needMove) {
+        drawText(canvas, layoutInfo.text, percent, percent,
+            Offset(layoutInfo.offsetX, layoutInfo.offsetY), layoutInfo);
       }
     }
     canvas.restore();
@@ -140,11 +117,12 @@ class _DiffText extends CustomPainter {
   void drawText(Canvas canvas, String text, double textScaleFactor,
       double alphaFactor, Offset offset, _TextLayoutInfo textLayoutInfo) {
     var textPaint = Paint();
+    final textColor = textStyle.color ?? Colors.black;
     if (alphaFactor == 1) {
-      textPaint.color = textStyle.color;
+      textPaint.color = textColor;
     } else {
-      textPaint.color = textStyle.color
-          .withAlpha((textStyle.color.alpha * alphaFactor).floor());
+      textPaint.color =
+          textColor.withAlpha((textColor.alpha * alphaFactor).floor());
     }
     var textPainter = TextPainter(
         text: TextSpan(
@@ -169,14 +147,14 @@ class _DiffText extends CustomPainter {
     if (oldDelegate is _DiffText) {
       String oldFrameText = oldDelegate.text;
       if (oldFrameText == text) {
-        this._oldText = oldDelegate._oldText;
-        this._oldTextLayoutInfo = oldDelegate._oldTextLayoutInfo;
-        this._textLayoutInfo = oldDelegate._textLayoutInfo;
-        if (this.progress == oldDelegate.progress) {
+        _oldText = oldDelegate._oldText;
+        _oldTextLayoutInfo = oldDelegate._oldTextLayoutInfo;
+        _textLayoutInfo = oldDelegate._textLayoutInfo;
+        if (progress == oldDelegate.progress) {
           return false;
         }
       } else {
-        this._oldText = oldDelegate.text;
+        _oldText = oldDelegate.text;
         calculateLayoutInfo(text, _textLayoutInfo);
         calculateLayoutInfo(_oldText, _oldTextLayoutInfo);
         calculateMove();
@@ -195,7 +173,7 @@ class _DiffText extends CustomPainter {
     textPainter.layout();
     for (int i = 0; i < text.length; i++) {
       var forCaret =
-      textPainter.getOffsetForCaret(TextPosition(offset: i), Rect.zero);
+          textPainter.getOffsetForCaret(TextPosition(offset: i), Rect.zero);
       var offsetX = forCaret.dx;
       if (i > 0 && offsetX == 0) {
         break;
@@ -213,10 +191,10 @@ class _DiffText extends CustomPainter {
   }
 
   void calculateMove() {
-    if (_oldTextLayoutInfo == null || _oldTextLayoutInfo.length == 0) {
+    if (_oldTextLayoutInfo.isEmpty) {
       return;
     }
-    if (_textLayoutInfo == null || _textLayoutInfo.length == 0) {
+    if (_textLayoutInfo.isEmpty) {
       return;
     }
 
@@ -234,12 +212,12 @@ class _DiffText extends CustomPainter {
 }
 
 class _TextLayoutInfo {
-  String text;
-  double offsetX;
-  double offsetY;
-  double baseline;
-  double width;
-  double height;
+  String text = "";
+  double offsetX = 0;
+  double offsetY = 0;
+  double baseline = 0;
+  double width = 0;
+  double height = 0;
   double fromX = 0;
   double toX = 0;
   bool needMove = false;
